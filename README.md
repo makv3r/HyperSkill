@@ -1,17 +1,5 @@
-------------------------------------------------------------------------------
-[Links]
-https://hyperskill.org/login
-https://hyperskill.org/join/bddecbfb3
-https://hyperskill.org/users/settings
-https://hyperskill.org/register
-https://hyperskill.org/delete-account
-https://hyperskill.org/repeat
-https://hyperskill.org/learn/daily
-https://hyperskill.org/tracks
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-
 My projects:
+
 My First Project - package: calculator
 https://hyperskill.org/projects/380
 
@@ -35,6 +23,3 @@ https://hyperskill.org/projects/43
 
 Cinema Room Manager - package: cinema
 https://hyperskill.org/projects/133
-
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
