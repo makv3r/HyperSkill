@@ -14,7 +14,7 @@ public class Main {
                 int index = Integer.parseInt(line);
                 System.out.println(Animals.values()[index]);
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
         System.out.println("See you later!");
@@ -28,7 +28,7 @@ public class Main {
 enum Animals {
     CAMEL(ASCII.CAMEL), LION(ASCII.LION), DEER(ASCII.DEER), GOOSE(ASCII.GOOSE), BAT(ASCII.BAT), RABBIT(ASCII.RABBIT);
 
-    String ascii;
+    final String ascii;
 
     Animals(String ascii) {
         this.ascii = ascii;
