@@ -23,3 +23,6 @@ https://hyperskill.org/projects/43
 
 Cinema Room Manager - package: cinema
 https://hyperskill.org/projects/133
+
+Readability Score - package: readability
+https://hyperskill.org/projects/39
