@@ -4,19 +4,29 @@ import java.util.*;
 
 public class Cinema {
     private enum Message {
-        ENTER_NUMBER_OF_ROWS("Enter the number of rows:"),
-        ENTER_NUMBER_OF_SEATS("Enter the number of seats in each row:"),
-        ENTER_ROW_NUMBER("Enter a row number:"),
-        ENTER_SEAT_NUMBER("Enter a seat number in that row:"),
-        TICKET_PRICE("Ticket price: $"),
-        WRONG_OPTION("Wrong option!"),
-        TICKET_ALREADY_PURCHASED("That ticket has already been purchased!"),
+        CINEMA_NAME("\nCinema:\n  "),
+        ENTER_NUMBER_OF_ROWS("Enter the number of rows:\n"),
+        ENTER_NUMBER_OF_SEATS("Enter the number of seats in each row:\n"),
+        ENTER_ROW_NUMBER("Enter a row number:\n"),
+        ENTER_SEAT_NUMBER("Enter a seat number in that row:\n"),
+        TICKET_PRICE("\nTicket price: $%d\n"),
+        WRONG_INPUT("\nWrong input!\n"),
+        TICKET_ALREADY_PURCHASED("\nThat ticket has already been purchased!\n"),
         MENU("""
+                
                 1. Show the seats
                 2. Buy a ticket
                 3. Statistics
                 0. Exit
-                """);
+                """),
+        STATISTICS("""
+                
+                Number of purchased tickets: %d
+                Percentage: %.2f%%
+                Current income: $%d
+                Total income: $%d
+                """
+        );
 
         private final String msg;
 
@@ -30,61 +40,80 @@ public class Cinema {
         }
     }
 
-    static final Scanner scanner = new Scanner(System.in);
-    static final int FIRST_HALF_TICKET_PRICE = 10;
-    static final int SECOND_HALF_TICKET_PRICE = 8;
-    static final int PRICE_SWITCHER_LIMIT = 60;
+    private static final Scanner SCANNER = new Scanner(System.in);
+    private static final int FIRST_HALF_TICKET_PRICE = 10;
+    private static final int SECOND_HALF_TICKET_PRICE = 8;
+    private static final int PRICE_SWITCHER_LIMIT = 60;
+
+    private static final char EMPTY_SEAT = 'S';
+    private static final char TAKEN_SEAT = 'B';
 
     private final int rows;
     private final int seats;
     private final char[][] room;
+    private final int income;
+
+    private int currentIncome;
+    private int purchasedTickets;
 
     Cinema() {
-        System.out.println("Enter the number of rows:");
-        rows = scanner.nextInt();
-        System.out.println("Enter the number of seats in each row:");
-        seats = scanner.nextInt();
-        System.out.println();
-        room = new char[rows][seats];
-        for (char[] chars : room) {
-            Arrays.fill(chars, 'S');
-        }
-    }
+        this.currentIncome = 0;
+        this.purchasedTickets = 0;
 
-    private int getInput(Message message, int limit) {
-        // Fix this
-        System.out.println(message);
-        String line = scanner.nextLine();
-        try {
-            int number = Integer.parseInt(line);
-        } catch (NumberFormatException ignored) {
-
-        }
-        return 0;
-    }
-
-    public void openMenu() {
-        loop:
         while (true) {
-            System.out.println(Message.MENU);
-            switch (scanner.nextInt()) {
-                case 0 -> {
-                    break loop;
+            int rows = getIntValue(Message.ENTER_NUMBER_OF_ROWS);
+            int seats = getIntValue(Message.ENTER_NUMBER_OF_SEATS);
+
+            if (rows > 0 && seats > 0) {
+                this.rows = rows;
+                this.seats = seats;
+
+                this.room = new char[this.rows][this.seats];
+                for (char[] c : this.room) {
+                    Arrays.fill(c, EMPTY_SEAT);
                 }
-                case 1 -> printCinemaRoom();
-                case 2 -> buyTicket();
-                case 3 -> printStatistics();
-                default -> System.out.println("Wrong option!\n");
+
+                int income = 0;
+                for (int i = 1; i <= rows; i++) {
+                    income += (getTicketPrice(i) * seats);
+                }
+                this.income = income;
+
+                break;
             }
         }
     }
 
-    private void printCinemaRoom() {
-        System.out.println();
-        System.out.println("Cinema:");
-        System.out.print("  ");
-        for (int i = 1; i <= seats; i++) {
-            System.out.print(i + " ");
+    public void run() {
+        loop:
+        while (true) {
+            switch (getIntValue(Message.MENU)) {
+                case 0 -> { // Exit
+                    break loop;
+                }
+                case 1 -> printCinemaRoomSeats();
+                case 2 -> buyTicket();
+                case 3 -> printStatistics();
+                default -> System.out.printf(Message.WRONG_INPUT.toString());
+            }
+        }
+    }
+
+    private int getIntValue(Message message) {
+        while (true) {
+            try {
+                System.out.printf(message.toString());
+                return SCANNER.nextInt();
+            } catch (InputMismatchException | IllegalArgumentException e) {
+                SCANNER.nextLine();
+            }
+        }
+    }
+
+    private void printCinemaRoomSeats() {
+        System.out.printf(Message.CINEMA_NAME.toString());
+        for (int i = 0; i < seats; i++) {
+            System.out.print(i + 1 + " ");
         }
         System.out.println();
         for (int i = 0; i < rows; i++) {
@@ -94,74 +123,41 @@ public class Cinema {
             }
             System.out.println();
         }
-        System.out.println();
     }
 
     private void printStatistics() {
-        int purchasedTickets = 0;
-        int currentIncome = 0;
-        int totalIncome = 0;
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < seats; j++) {
-                if (room[i][j] == 'B') {
-                    purchasedTickets++;
-                    currentIncome += getTicketPrice(i, j);
-                }
-                totalIncome += getTicketPrice(i, j);
-            }
-        }
-
         double percentage = (double) (100 * purchasedTickets) / (rows * seats);
-
-        System.out.println();
-        System.out.printf("Number of purchased tickets: %d\n", purchasedTickets);
-        System.out.printf("Percentage: %.2f\n", percentage);
-        System.out.printf("Current income: $%d\n", currentIncome);
-        System.out.printf("Total income: $%d\n", totalIncome);
-        System.out.println();
+        System.out.printf(Message.STATISTICS.toString(), purchasedTickets, percentage, currentIncome, income);
     }
 
     private void buyTicket() {
-        System.out.println();
-        System.out.println("Enter a row number:");
-        int rowNumber = scanner.nextInt();
+        while (purchasedTickets < rows * seats) {
+            System.out.println();
+            int rowNumber = getIntValue(Message.ENTER_ROW_NUMBER);
+            int seatNumber = getIntValue(Message.ENTER_SEAT_NUMBER);
 
-        System.out.println("Enter a seat number in that row:");
-        int seatNumber = scanner.nextInt();
-
-        System.out.println("Ticket price: $" + getTicketPrice(rowNumber, seatNumber));
-        System.out.println();
-
-        if (rowNumber >= 1 && rowNumber <= rows && seatNumber >= 1 && seatNumber <= seats) {
-
-        }
-
-        if (room[rowNumber - 1][seatNumber - 1] == 'S') {
-            room[rowNumber - 1][seatNumber - 1] = 'B';
-        } else {
-            System.out.println("That ticket has already been purchased!");
+            if (rowNumber <= 0 || rowNumber > rows || seatNumber <= 0 || seatNumber > seats) {
+                System.out.printf(Message.WRONG_INPUT.toString());
+            } else if (room[rowNumber - 1][seatNumber - 1] != EMPTY_SEAT) {
+                System.out.printf(Message.TICKET_ALREADY_PURCHASED.toString());
+            } else {
+                System.out.printf(Message.TICKET_PRICE.toString(), getTicketPrice(rowNumber));
+                room[rowNumber - 1][seatNumber - 1] = TAKEN_SEAT;
+                currentIncome += getTicketPrice(rowNumber);
+                purchasedTickets++;
+                break;
+            }
         }
     }
 
-    private int getTicketPrice(int rawNumber, int seatNumber) {
-        int totalSeats = rows * seats;
-        if (totalSeats <= PRICE_SWITCHER_LIMIT) {
-            return FIRST_HALF_TICKET_PRICE;
-        } else {
-            int seatCount = (rawNumber - 1) * seats + seatNumber;
-            int firstHalfSeatsCount = (rows / 2) * seats;
-            return seatCount < firstHalfSeatsCount ? FIRST_HALF_TICKET_PRICE : SECOND_HALF_TICKET_PRICE;
-        }
-    }
-
-    private boolean isValidInput() {
-        return false;
+    private int getTicketPrice(int rawNumber) {
+        return rows * seats <= PRICE_SWITCHER_LIMIT || (rawNumber <= (rows / 2)) ?
+                FIRST_HALF_TICKET_PRICE : SECOND_HALF_TICKET_PRICE;
     }
 
     public static void main(String[] args) {
-        new Cinema() {{
-            openMenu();
+        Cinema cinema = new Cinema() {{
+            run();
         }};
     }
 }
