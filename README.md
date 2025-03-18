@@ -26,3 +26,6 @@ https://hyperskill.org/projects/133
 
 Readability Score - package: readability
 https://hyperskill.org/projects/39
+
+Rock-Paper-Scissors - package: rockpaperscissors
+https://hyperskill.org/projects/314?track=17
